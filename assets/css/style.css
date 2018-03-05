@@ -1,7 +1,9 @@
+/* Adding a margin to the dynamic buttons to space them out */
 .answer {
   margin: 5px;
 }
 
+/* Adding a background image and adding a flex property that will allow the footer to always be pushed to the bottom of the page  */
 body {
   background-image: url("../images/bg.png");
   display: flex;
@@ -9,11 +11,13 @@ body {
   flex-direction: column;
 }
 
+/* Making the game content background white for visibility and adding a slight opacity so that the background is slightly visible */
 .game-box {
   background-color: white;
-  opacity: .9;
+  opacity: .85;
 }
 
+/* Adding a flex property for the sticky footer */
 main {
   flex: 1 0 auto;
 }

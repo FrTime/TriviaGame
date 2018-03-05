@@ -27,9 +27,11 @@ var triviaGameObj = {
   // This function generates a random math-themed question from an online trivia API
   getQuestion: function() {
     if (triviaGameObj.questionsAnswered === 10) {
+      // Clearing the content box for when the game is restarted after ending, this will not run if the user has not answered 10 questions
       $(".content-box").empty();
       triviaGameObj.answersArr = [];
       triviaGameObj.roundActive = false;
+      // Building the content box
       $(".content-box").html(
         `
         <br>
@@ -44,9 +46,12 @@ var triviaGameObj = {
         <div class="btn game-start">Play Again?</div>
         `
       );
+      // This will run every new question until the 10th question has been answered
     } else {
+      // Emptying the content box
       $(".content-box").empty();
       triviaGameObj.answersArr = [];
+      // Rebuilding the content box
       $(".content-box").html(
         `
         <div class="game-question"></div>
@@ -57,7 +62,9 @@ var triviaGameObj = {
         <br>
         `
       );
+      // Linking to an API to grab math-themed questions
       var queryURL = "https://opentdb.com/api.php?amount=1&category=19";
+      // Using an AJAX function to extract the question data we want from a JSON object obtained from the API and setting them to our local variables
       $.ajax({
         url: queryURL,
         method: "GET"
@@ -69,6 +76,8 @@ var triviaGameObj = {
         $(".game-question").html(
           "<h5>" + triviaGameObj.currentQuestion + "</h5><br>"
         );
+        // Pushing the incorrect answers into an empty array that will be used to generate dynamic buttons
+        // The correct answer is then spliced into this array at a random index so that it is not always in the same position
         for (i = 0; i < response.results[0].incorrect_answers.length; i++) {
           triviaGameObj.answersArr.push(
             response.results[0].incorrect_answers[i]
@@ -83,7 +92,8 @@ var triviaGameObj = {
         console.log(triviaGameObj.answersArr);
       });
       $(".game-answers").empty();
-      // Creates buttons for each answer to the question
+      // Creating  dynamic buttons for each answer to the question
+      // This function is delayed by 1.5 seconds so that the AJAX function has time to grab a question through the API
       setTimeout(function() {
         for (var k = 0; k < triviaGameObj.answersArr.length; k++) {
           var a = $("<button>");
@@ -96,6 +106,7 @@ var triviaGameObj = {
           $(".game-answers").append(a);
           console.log("Button check");
         }
+        // Setting the game timer to an intial count of 20 seconds, this will increment down by one every second with another function
         triviaGameObj.countdownTimer = 20;
         triviaGameObj.roundActive = true;
         $(".game-timer").text(
@@ -103,7 +114,7 @@ var triviaGameObj = {
         );
         triviaGameObj.roundActive = true;
         triviaGameObj.questionTimer();
-
+        // Grabbing the div that will display our score and updating with the current round's variables
         $(".game-score").html(
           `
         <br>
@@ -171,9 +182,11 @@ var triviaGameObj = {
     triviaGameObj.questionsWrong = 0;
   },
 
+  // This function will compare the user selected answer to the correct answer each round by grabbing the attribute of the button clicked
   compareAnswer: function() {
     triviaGameObj.chosenAnswer = $(this).attr("answer-text");
     console.log("Chosen answer: " + triviaGameObj.chosenAnswer);
+    // This will run when the user is correct and increment the win counter
     if (triviaGameObj.chosenAnswer === triviaGameObj.correctAnswer) {
       console.log("Correct!");
       triviaGameObj.timerStop();
@@ -186,6 +199,7 @@ var triviaGameObj = {
         `
       );
       intervalID = setTimeout(triviaGameObj.getQuestion, 3000);
+      // This will run when the user is incorrect and increment the loss counter
     } else {
       console.log("Incorrect!");
       console.log("The correct answer is: " + triviaGameObj.correctAnswer);
@@ -204,7 +218,7 @@ var triviaGameObj = {
   }
 };
 
-// triviaGameObj.getQuestion();
-
+// These functions run outside of the game object so that they are always accessible
+// They allow the nested functions to be called when the user clicks on an element within the HTML page
 $(document).on("click", ".answer", triviaGameObj.compareAnswer);
 $(document).on("click", ".game-start", triviaGameObj.gameStart);
