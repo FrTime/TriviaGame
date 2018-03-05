@@ -26,9 +26,28 @@ var triviaGameObj = {
 
   // This function generates a random math-themed question from an online trivia API
   getQuestion: function() {
-    $(".content-box").empty();
-    triviaGameObj.answersArr = [];
-    $(".content-box").html(
+    if (triviaGameObj.questionsAnswered === 10) {
+      $(".content-box").empty();
+      triviaGameObj.answersArr = [];
+      triviaGameObj.roundActive = false;
+      $(".content-box").html(
+        `
+        <br>
+        <h5> Game Over! </h5>
+        <br>
+        <p> Questions Answered: ${triviaGameObj.questionsAnswered} </p>
+        <br>
+        <p> Questions Correct: ${triviaGameObj.questionsRight} </p>
+        <br>
+        <p> Questions Incorrect: ${triviaGameObj.questionsWrong} </p>
+        <br>
+        <div class="btn game-start">Play Again?</div>
+        `
+      );
+    } else {
+      $(".content-box").empty();
+      triviaGameObj.answersArr = [];
+      $(".content-box").html(
         `
         <div class="game-question"></div>
         <div class="game-timer"></div>
@@ -38,53 +57,55 @@ var triviaGameObj = {
         <br>
         `
       );
-    var queryURL = "https://opentdb.com/api.php?amount=1&category=19";
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    }).then(function(response) {
-      triviaGameObj.currentQuestion = response.results[0].question;
-      triviaGameObj.correctAnswer = response.results[0].correct_answer;
-      console.log(triviaGameObj.currentQuestion);
-      console.log(response);
-      $(".game-question").html(
-        "<h5>" + triviaGameObj.currentQuestion + "</h5><br>"
-      );
-      for (i = 0; i < response.results[0].incorrect_answers.length; i++) {
-        triviaGameObj.answersArr.push(response.results[0].incorrect_answers[i]);
+      var queryURL = "https://opentdb.com/api.php?amount=1&category=19";
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      }).then(function(response) {
+        triviaGameObj.currentQuestion = response.results[0].question;
+        triviaGameObj.correctAnswer = response.results[0].correct_answer;
+        console.log(triviaGameObj.currentQuestion);
+        console.log(response);
+        $(".game-question").html(
+          "<h5>" + triviaGameObj.currentQuestion + "</h5><br>"
+        );
+        for (i = 0; i < response.results[0].incorrect_answers.length; i++) {
+          triviaGameObj.answersArr.push(
+            response.results[0].incorrect_answers[i]
+          );
+          console.log(triviaGameObj.answersArr);
+        }
+        triviaGameObj.answersArr.splice(
+          triviaGameObj.getRandom(0, triviaGameObj.answersArr.length),
+          0,
+          response.results[0].correct_answer
+        );
         console.log(triviaGameObj.answersArr);
-      }
-      triviaGameObj.answersArr.splice(
-        triviaGameObj.getRandom(0, triviaGameObj.answersArr.length),
-        0,
-        response.results[0].correct_answer
-      );
-      console.log(triviaGameObj.answersArr);
-    });
-    $(".game-answers").empty();
-    // Creates buttons for each answer to the question
-    setTimeout(function() {
-      for (var k = 0; k < triviaGameObj.answersArr.length; k++) {
-        var a = $("<button>");
-        a.addClass("waves-effect waves-light btn answer");
-        // Added an attribute that we will be able to call later as our variable
-        a.attr("answer-text", triviaGameObj.answersArr[k]);
-        // Setting the text of the button to our answers
-        a.html(triviaGameObj.answersArr[k]);
-        // Adding the buttons to the page so they can be clicked
-        $(".game-answers").append(a);
-        console.log("Button check");
-      }
-      triviaGameObj.countdownTimer = 20;
-      triviaGameObj.roundActive = true;
-      $(".game-timer").text(
-        triviaGameObj.countdownTimer + " seconds remaining."
-      );
-      triviaGameObj.roundActive = true;
-      triviaGameObj.questionTimer();
+      });
+      $(".game-answers").empty();
+      // Creates buttons for each answer to the question
+      setTimeout(function() {
+        for (var k = 0; k < triviaGameObj.answersArr.length; k++) {
+          var a = $("<button>");
+          a.addClass("waves-effect waves-light btn answer");
+          // Added an attribute that we will be able to call later as our variable
+          a.attr("answer-text", triviaGameObj.answersArr[k]);
+          // Setting the text of the button to our answers
+          a.html(triviaGameObj.answersArr[k]);
+          // Adding the buttons to the page so they can be clicked
+          $(".game-answers").append(a);
+          console.log("Button check");
+        }
+        triviaGameObj.countdownTimer = 20;
+        triviaGameObj.roundActive = true;
+        $(".game-timer").text(
+          triviaGameObj.countdownTimer + " seconds remaining."
+        );
+        triviaGameObj.roundActive = true;
+        triviaGameObj.questionTimer();
 
-      $(".game-score").html(
-        `
+        $(".game-score").html(
+          `
         <br>
         <p> Questions Answered: ${triviaGameObj.questionsAnswered} </p>
         <br>
@@ -93,16 +114,19 @@ var triviaGameObj = {
         <p> Questions Incorrect: ${triviaGameObj.questionsWrong} </p>
         <br>
         `
-      );
-    }, 1250);
-    console.log("Question Picker Check");
+        );
+      }, 1500);
+      console.log("Question Picker Check");
+    }
   },
 
   // This function will run when the user presses the 'Start Game' button and set all the inital parameters
   gameStart: function() {
-      $(".start-div").empty();
-      triviaGameObj.initializeGame();
-      triviaGameObj.getQuestion();
+    $(".start-div").empty();
+    $(".content-box").empty();
+    triviaGameObj.initializeGame();
+    triviaGameObj.getQuestion();
+    console.log("Game started!");
   },
 
   // This function will decrease the question timer when run until it reaches zero
@@ -142,6 +166,9 @@ var triviaGameObj = {
     triviaGameObj.currentQuestion = "";
     triviaGameObj.correctAnswer = "";
     triviaGameObj.chosenAnswer = "";
+    triviaGameObj.questionsAnswered = 0;
+    triviaGameObj.questionsRight = 0;
+    triviaGameObj.questionsWrong = 0;
   },
 
   compareAnswer: function() {
