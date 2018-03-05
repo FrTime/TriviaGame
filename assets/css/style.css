@@ -1,0 +1,19 @@
+.answer {
+  margin: 0 5px 0 5px;
+}
+
+body {
+  background-image: url("../images/bg.png");
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.game-box {
+  background-color: white;
+  opacity: .9;
+}
+
+main {
+  flex: 1 0 auto;
+}
